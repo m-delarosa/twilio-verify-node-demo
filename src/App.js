@@ -2,11 +2,11 @@ import React from 'react'
 import {
   Paper,
   TextField,
-  MenuItem,
   Button,
   IconButton
 } from '@material-ui/core'
 import ArrowBackIcon from '@material-ui/icons/ArrowBack'
+import axios from 'axios'
 
 import Otp from './components/Otp'
 
@@ -16,6 +16,7 @@ function isNumeric(n) {
 
 export default class App extends React.Component {
   constructor(props) {
+    super(props)
     this.state = {
       code: '',
       pno: '',
@@ -24,8 +25,31 @@ export default class App extends React.Component {
     }
   }
 
+  _getCode = async () => {
+    const e = this.state.code + this.state.pno
+    await axios.get("http://localhost:8000/verify/getcode", {
+      params: {
+        phonenumber: e,
+        channel: 'sms'
+      }
+    })
+      .then(data => console.log(data))
+      .catch(err => console.log(err))
+  };
+
+  _verifyCode = async () => {
+    const e = this.state.code + this.state.pno
+    await axios.get("http://localhost:8000/verify/verifycode", {
+      params: {
+        phonenumber: e,
+        code: this.state.otp
+      }
+    })
+      .then(data => console.log(data))
+      .catch(err => console.log(err))
+  }
+
   render() {
-    const height = this.state.height - 65
     return (
       <div style={{
         flex: 1,
@@ -58,7 +82,7 @@ export default class App extends React.Component {
               </div>
             </div> : <Otp otp={this.state.otp} setOtp={val => this.setState({ otp: val })} />}
             {this.state.otpShow ? <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginTop: 5 }}>
-              Didn't receive an OTP? <Button onClick={() => null} color="primary" style={{ textTransform: 'none', fontSize: 15 }}>Resend OTP</Button>
+              Didn't receive an OTP? <Button onClick={() => this._getCode()} color="primary" style={{ textTransform: 'none', fontSize: 15 }}>Resend OTP</Button>
             </div> : null}
             <div style={{ display: 'flex', flexDirection: 'row', marginTop: 20 }}>
               <Button
@@ -72,12 +96,14 @@ export default class App extends React.Component {
                 }}
                 onClick={() => {
                   if (this.state.otpShow) {
+                    this._verifyCode()
                   } else {
+                    this._getCode()
                     this.setState({ otpShow: true })
                   }
                 }}>
                 Verify
-              </Button>
+                            </Button>
             </div>
             {!this.state.otpShow ? <p>By tapping Verify an SMS may be sent. Message & data rates may apply.</p> : null}
             <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-end', marginTop: 10 }}>
