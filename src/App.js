@@ -8,7 +8,7 @@ import {
 import ArrowBackIcon from '@material-ui/icons/ArrowBack'
 import axios from 'axios'
 
-import Otp from './components/Otp'
+import Otp from './Otp'
 
 function isNumeric(n) {
   return !isNaN(parseInt(n)) && isFinite(n)
@@ -16,7 +16,6 @@ function isNumeric(n) {
 
 export default class App extends React.Component {
   constructor(props) {
-    super(props)
     this.state = {
       code: '',
       pno: '',
